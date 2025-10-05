@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
+DRIVE_NAME=google_drive:
 MOUNT_DIR=$HOME/GoogleDrive/
 MOUNTED=$(mountpoint $MOUNT_DIR)
 
 case $MOUNTED in
     "$MOUNT_DIR is not a mountpoint")
-        rclone mount google_drive: $MOUNT_DIR &
+        rclone mount $DRIVE_NAME $MOUNT_DIR &
         ;;
 
     "$MOUNT_DIR is a mountpoint")
