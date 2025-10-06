@@ -3,13 +3,33 @@
 DRIVE_NAME=google_drive:
 MOUNT_DIR=$HOME/GoogleDrive/
 MOUNTED=$(mountpoint $MOUNT_DIR)
+STATE=$HOME/.local/state/googledrive
+
+
+# State file: 0 if mounted, 1 if not
+if [[ ! -f $STATE ]]; then
+   printf "" > $STATE
+fi
 
 case $MOUNTED in
     "$MOUNT_DIR is not a mountpoint")
         rclone mount $DRIVE_NAME $MOUNT_DIR &
+
+        until [[ $(mountpoint $MOUNT_DIR) == "$MOUNT_DIR is a mountpoint" ]]; do
+            sleep 1
+        done
+
+        echo 0 > $STATE
+        
+        exit 0 
         ;;
 
     "$MOUNT_DIR is a mountpoint")
         umount $MOUNT_DIR
+
+        if [[ $(mountpoint $MOUNT_DIR) == "$MOUNT_DIR is not a mountpoint" ]]; then
+            echo 1 > $STATE
+        fi
+        exit 0
         ;;
 esac
